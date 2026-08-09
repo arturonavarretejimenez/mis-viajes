@@ -58,7 +58,7 @@ Variables CSS en `app/globals.css`, mapeadas en `@theme inline` de Tailwind 4. `
 ## Composición
 
 - Home: `BrandLockup` (texto) como señal hero, grid de álbumes, un único CTA "+ Nuevo álbum". Sin stats, sin filtros, sin promos.
-- Álbum (`/album/[slug]`): wordmark pequeño + volver, cabecera con emoji + país, nombre, grid de fotos, FAB "+ Añadir foto".
+- Álbum (`/album/[slug]`): wordmark pequeño + volver, cabecera con emoji + país, nombre, grid de fotos, FAB "+ Añadir foto". Primera visita: overlay de bienvenida antes de la galería.
 - Sin cards decorativas: la card de álbum es el contenedor de interacción.
 - Excepción a "sin emojis": el emoji es un dato del álbum (elegido al crearlo), no decoración de UI.
 - Estilo de foto: borde fino `borde` y esquinas `rounded-xl`/`rounded-3xl`.
@@ -69,10 +69,11 @@ Usar `motion` con intención:
 
 1. Stagger de cards / fotos.
 2. Modal/sheet de crear álbum.
-3. Lightbox fade + scale.
+3. Lightbox inmersivo a pantalla completa: swipe horizontal, flechas (desktop) y teclado ←/→ / Escape; acciones portada/borrar en barra inferior.
 4. Feedback al guardar fotos.
 5. Hover de card: zoom + lift + borde Tierra.
 6. Confirmación breve al setear portada.
+7. Bienvenida primera visita al álbum (`AlbumWelcome`): título + emoji + partículas en colores de marca (tierra/bosque/arena/piedra); una vez por slug en `localStorage`; skip al tocar; respetar `prefers-reduced-motion`.
 
 Evitar glow, sombras multicapa y pills decorativos.
 
@@ -101,7 +102,8 @@ Acceso principal: escaneo NFC con el smartphone. Desktop es secundario. Escribir
 
 - Home álbumes: **2 columnas** en móvil; `md`/`lg` escalan a 3–4.
 - Galería fotos: `grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3 md:grid-cols-4`.
-- Fotos: `aspect-square` + `object-cover`. Solo imágenes en el MVP (sin vídeos).
+- Fotos: `aspect-square` + `object-cover` en el grid. En el lightbox: `object-contain` a máximo viewport, sin pinch-zoom en el MVP.
+- Z-index: bienvenida (`z-[60]`) > lightbox (`z-50`) > FAB (`z-40`).
 
 ### Tipografía y formularios
 
