@@ -114,19 +114,12 @@ export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
                   className="object-contain"
                 />
               </div>
-              <div className="mt-4 flex w-full max-w-md flex-wrap items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(null)}
-                  className="inline-flex h-11 min-h-[44px] min-w-[5.5rem] items-center justify-center rounded-full border border-blanco/30 px-5 text-sm font-medium text-blanco transition-transform duration-150 hover:bg-blanco/10 active:scale-95"
-                >
-                  Cerrar
-                </button>
+              <div className="mt-4 flex w-full max-w-md flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
                 <button
                   type="button"
                   onClick={() => handleSetCover(selected)}
                   disabled={selectedIsCover || isSettingCover}
-                  className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full border border-tierra px-5 text-sm font-semibold text-blanco transition-transform duration-150 hover:bg-tierra/20 active:scale-95 disabled:cursor-default disabled:border-blanco/20 disabled:text-blanco/50 disabled:active:scale-100"
+                  className="inline-flex h-12 min-h-[44px] w-full items-center justify-center rounded-full border border-tierra bg-tierra/15 px-5 text-base font-semibold text-blanco transition-transform duration-150 hover:bg-tierra/25 active:scale-95 disabled:cursor-default disabled:border-blanco/20 disabled:bg-transparent disabled:text-blanco/50 disabled:active:scale-100 sm:h-11 sm:w-auto sm:text-sm"
                 >
                   {selectedIsCover
                     ? "Es la portada"
@@ -137,9 +130,16 @@ export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
                 <button
                   type="button"
                   onClick={() => setConfirmingId(selected.id)}
-                  className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full bg-lust px-5 text-sm font-semibold text-blanco transition-transform duration-150 hover:opacity-90 active:scale-95"
+                  className="inline-flex h-12 min-h-[44px] w-full items-center justify-center rounded-full bg-lust px-5 text-base font-semibold text-blanco transition-transform duration-150 hover:opacity-90 active:scale-95 sm:h-11 sm:w-auto sm:text-sm"
                 >
                   Borrar foto
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedId(null)}
+                  className="inline-flex h-12 min-h-[44px] w-full items-center justify-center rounded-full border border-blanco/30 px-5 text-base font-medium text-blanco transition-transform duration-150 hover:bg-blanco/10 active:scale-95 sm:h-11 sm:w-auto sm:min-w-[5.5rem] sm:text-sm"
+                >
+                  Cerrar
                 </button>
               </div>
               {justSetCover ? (

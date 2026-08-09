@@ -19,16 +19,17 @@ export default async function AlbumPage(
   const { album, media } = result;
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 pb-[calc(8rem+env(safe-area-inset-bottom))] pt-8 sm:px-8 sm:pt-16">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <BrandLockup size="sm" />
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 pb-[calc(8rem+env(safe-area-inset-bottom))] pt-[calc(1.5rem+env(safe-area-inset-top))] sm:px-8 sm:pt-16">
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/"
-            className="inline-flex min-h-[44px] items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-surface-border bg-blanco px-4 text-sm font-medium text-foreground shadow-sm shadow-piedra/5 transition-transform duration-150 hover:border-tierra/40 active:scale-95"
           >
-            ← Todos los álbumes
+            <span aria-hidden>←</span>
+            Todos los álbumes
           </Link>
+          <BrandLockup size="sm" className="hidden sm:inline-flex" />
         </div>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -36,7 +37,7 @@ export default async function AlbumPage(
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-bosque">
               {album.emoji} {album.country_name}
             </p>
-            <h1 className="mt-2 break-words text-[clamp(1.875rem,5vw,3rem)] font-semibold leading-tight text-foreground">
+            <h1 className="mt-2 break-words text-[clamp(1.75rem,6vw,3rem)] font-semibold leading-tight text-foreground">
               {album.name}
             </h1>
           </div>

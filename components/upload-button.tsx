@@ -76,9 +76,12 @@ export function UploadButton({ albumId, slug }: UploadButtonProps) {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-center gap-2 px-4">
+    <div className="fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-center gap-2 px-4">
       {error ? (
-        <p className="rounded-full border border-borde bg-blanco px-4 py-2 text-sm text-lust shadow-sm">
+        <p
+          role="alert"
+          className="max-w-sm rounded-2xl border border-borde bg-blanco px-4 py-2.5 text-center text-sm text-lust shadow-sm"
+        >
           {error}
         </p>
       ) : null}
@@ -86,7 +89,6 @@ export function UploadButton({ albumId, slug }: UploadButtonProps) {
         ref={inputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         multiple
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
@@ -95,7 +97,7 @@ export function UploadButton({ albumId, slug }: UploadButtonProps) {
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
-        className="inline-flex h-14 min-h-[44px] min-w-[12rem] items-center justify-center gap-2 rounded-full bg-tierra px-7 text-sm font-semibold text-blanco shadow-lg shadow-piedra/15 transition-transform duration-150 hover:scale-[1.03] active:scale-95 disabled:opacity-70"
+        className="inline-flex h-14 min-h-[48px] w-full max-w-sm items-center justify-center gap-2 rounded-full bg-tierra px-7 text-base font-semibold text-blanco shadow-lg shadow-piedra/20 transition-transform duration-150 hover:scale-[1.02] active:scale-95 disabled:opacity-70 sm:w-auto sm:min-w-[14rem] sm:text-sm"
       >
         {uploading && progress
           ? `Guardando ${progress.done}/${progress.total}…`

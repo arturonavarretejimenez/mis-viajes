@@ -32,7 +32,7 @@ export function BrandLockup({
   const s = sizeMap[size];
 
   const content = (
-    <span className={`inline-flex flex-col items-start gap-1.5 ${className}`}>
+    <span className="inline-flex flex-col items-start gap-1.5">
       <span className={s.wordmark} aria-label="Album NFC">
         <span className="text-piedra">Album</span>
         <span className="text-tierra"> NFC</span>
@@ -45,12 +45,14 @@ export function BrandLockup({
     </span>
   );
 
-  if (href == null) return content;
+  if (href == null) {
+    return <span className={className || undefined}>{content}</span>;
+  }
 
   return (
     <Link
       href={href}
-      className="inline-flex transition-transform duration-150 active:scale-[0.98]"
+      className={`inline-flex transition-transform duration-150 active:scale-[0.98] ${className}`}
       aria-label="Album NFC — inicio"
     >
       {content}

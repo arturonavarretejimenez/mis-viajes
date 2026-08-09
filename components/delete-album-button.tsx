@@ -19,7 +19,7 @@ export function DeleteAlbumButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-11 min-h-[44px] w-full items-center justify-center rounded-full border border-surface-border px-4 text-sm font-medium text-muted-foreground transition-transform duration-150 hover:border-lust hover:text-lust active:scale-95 sm:w-auto"
+        className="inline-flex h-12 min-h-[44px] w-full items-center justify-center rounded-full border border-surface-border bg-blanco px-4 text-base font-medium text-muted-foreground transition-transform duration-150 hover:border-lust hover:text-lust active:scale-95 sm:h-11 sm:w-auto sm:text-sm"
       >
         Borrar álbum
       </button>

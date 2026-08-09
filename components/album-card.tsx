@@ -42,11 +42,11 @@ export function AlbumCard({ album }: { album: AlbumWithCount }) {
           </span>
         ) : null}
 
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          <p className="text-xl font-semibold leading-tight text-blanco">
+        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+          <p className="line-clamp-2 text-base font-semibold leading-tight text-blanco sm:text-xl">
             {album.name}
           </p>
-          <p className="mt-0.5 text-sm text-blanco/75">
+          <p className="mt-0.5 truncate text-xs text-blanco/75 sm:text-sm">
             {album.country_name} · {album.media_count}{" "}
             {album.media_count === 1 ? "foto" : "fotos"}
           </p>

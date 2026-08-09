@@ -93,6 +93,9 @@ Acceso principal: escaneo NFC con el smartphone. Desktop es secundario. Escribir
 - Espacio mínimo `gap-2` (8px) entre controles contiguos.
 - Feedback al pulsar: `active:scale-95 transition-transform duration-150`.
 - `-webkit-tap-highlight-color: transparent` y `touch-action: manipulation` en controles interactivos (definido en `globals.css`).
+- Sheets móviles (crear álbum, confirmaciones): asa superior, cabecera/pie fijos, cuerpo con scroll, CTAs a **ancho completo** y apilados (`flex-col-reverse`: acción primaria abajo).
+- Enlace “volver” como botón/píldora con borde, no solo texto subrayado.
+- FAB “+ Añadir foto” a ancho casi completo en móvil; el `input[type=file]` **sin** `capture` para poder elegir cámara o galería.
 
 ### Grids e imágenes
 
