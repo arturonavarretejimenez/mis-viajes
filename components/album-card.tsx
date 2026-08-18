@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { publicMediaUrl } from "@/lib/storage";
+import { VideoThumb } from "@/components/video-thumb";
+import { isVideoPath, publicMediaUrl } from "@/lib/storage";
 import type { AlbumWithCount } from "@/lib/types";
 
 export function AlbumCard({ album }: { album: AlbumWithCount }) {
@@ -22,13 +23,17 @@ export function AlbumCard({ album }: { album: AlbumWithCount }) {
         className="group relative block aspect-[4/5] w-full overflow-hidden rounded-3xl border border-surface-border bg-surface shadow-sm shadow-piedra/10 transition-transform duration-150 hover:border-tierra/50 hover:shadow-tierra/15 active:scale-[0.98]"
       >
         {album.cover_path ? (
-          <Image
-            src={publicMediaUrl(album.cover_path)}
-            alt={album.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-          />
+          isVideoPath(album.cover_path) ? (
+            <VideoThumb src={publicMediaUrl(album.cover_path)} />
+          ) : (
+            <Image
+              src={publicMediaUrl(album.cover_path)}
+              alt={album.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+            />
+          )
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-tierra/15 via-arena to-bosque/15 text-6xl transition-transform duration-500 ease-out group-hover:scale-110">
             {album.emoji}
@@ -48,7 +53,7 @@ export function AlbumCard({ album }: { album: AlbumWithCount }) {
           </p>
           <p className="mt-0.5 truncate text-xs text-blanco/75 sm:text-sm">
             {album.country_name} · {album.media_count}{" "}
-            {album.media_count === 1 ? "foto" : "fotos"}
+            {album.media_count === 1 ? "recuerdo" : "recuerdos"}
           </p>
         </div>
       </Link>
