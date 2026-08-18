@@ -7,7 +7,8 @@ import { deleteMedia, setAlbumCover } from "@/app/actions/media";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PhotoLightbox } from "@/components/photo-lightbox";
-import { publicMediaUrl } from "@/lib/storage";
+import { VideoThumb } from "@/components/video-thumb";
+import { isVideoType, publicMediaUrl } from "@/lib/storage";
 import type { Media } from "@/lib/types";
 
 type PhotoGridProps = {
@@ -66,8 +67,8 @@ export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
   if (media.length === 0) {
     return (
       <EmptyState
-        title="Todavía no hay fotos en este álbum"
-        description="Toca el botón para guardar la primera, con la cámara o la galería del móvil."
+        title="Todavía no hay nada en este álbum"
+        description="Toca el botón para guardar la primera foto o vídeo, con la cámara o la galería del móvil."
       />
     );
   }
@@ -98,13 +99,17 @@ export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
             }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <Image
-              src={publicMediaUrl(item.storage_path)}
-              alt="Foto del álbum"
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-            />
+            {isVideoType(item.mime_type) ? (
+              <VideoThumb src={publicMediaUrl(item.storage_path)} />
+            ) : (
+              <Image
+                src={publicMediaUrl(item.storage_path)}
+                alt="Foto del álbum"
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+              />
+            )}
             {item.storage_path === coverPath ? (
               <span className="absolute left-2 top-2 rounded-full border border-surface-border bg-blanco/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-tierra">
                 Portada
@@ -134,8 +139,16 @@ export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
 
       <ConfirmDialog
         open={confirming !== null}
-        title="Borrar foto"
-        description="Esta acción no se puede deshacer. La foto se eliminará para siempre del álbum."
+        title={
+          confirming && isVideoType(confirming.mime_type)
+            ? "Borrar vídeo"
+            : "Borrar foto"
+        }
+        description={
+          confirming && isVideoType(confirming.mime_type)
+            ? "Esta acción no se puede deshacer. El vídeo se eliminará para siempre del álbum."
+            : "Esta acción no se puede deshacer. La foto se eliminará para siempre del álbum."
+        }
         pending={isPending}
         onConfirm={() => confirming && handleDelete(confirming)}
         onCancel={() => setConfirmingId(null)}
