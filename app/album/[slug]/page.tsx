@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AlbumWelcome } from "@/components/album-welcome";
 import { BrandLockup } from "@/components/brand-lockup";
 import { DeleteAlbumButton } from "@/components/delete-album-button";
+import { FeaturedVideo } from "@/components/featured-video";
 import { PhotoGrid } from "@/components/photo-grid";
 import { UploadButton } from "@/components/upload-button";
 import { getAlbumBySlug } from "@/lib/albums";
@@ -51,6 +52,13 @@ export default async function AlbumPage(
             <DeleteAlbumButton albumId={album.id} slug={album.slug} />
           </div>
         </div>
+
+        <FeaturedVideo
+          albumId={album.id}
+          slug={album.slug}
+          albumName={album.name}
+          videoUrl={album.featured_video_url ?? null}
+        />
 
         <PhotoGrid
           media={media}
