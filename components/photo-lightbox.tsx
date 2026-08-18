@@ -7,7 +7,7 @@ import {
   motion,
   type PanInfo,
 } from "motion/react";
-import { publicMediaUrl } from "@/lib/storage";
+import { isVideoType, publicMediaUrl } from "@/lib/storage";
 import type { Media } from "@/lib/types";
 
 const SWIPE_OFFSET = 80;
@@ -57,6 +57,7 @@ export function PhotoLightbox({
   const canPrev = index > 0;
   const canNext = index < media.length - 1;
   const isCover = item ? item.storage_path === coverPath : false;
+  const isVideo = item ? isVideoType(item.mime_type) : false;
   const dragLock = useRef(false);
 
   const goTo = useCallback(
@@ -124,7 +125,7 @@ export function PhotoLightbox({
       className="fixed inset-0 z-50 flex flex-col bg-piedra/95"
       role="dialog"
       aria-modal="true"
-      aria-label={`Foto ${index + 1} de ${media.length}`}
+      aria-label={`${isVideo ? "Vídeo" : "Foto"} ${index + 1} de ${media.length}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -175,22 +176,40 @@ export function PhotoLightbox({
               animate="center"
               exit="exit"
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              drag="x"
+              // En vídeo desactivamos el arrastre: si no, deslizar para buscar
+              // en la barra de reproducción cambiaría de elemento.
+              drag={isVideo ? false : "x"}
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.18}
               onDragEnd={onDragEnd}
-              className="absolute inset-0 flex cursor-grab touch-pan-y items-center justify-center active:cursor-grabbing"
+              className={`absolute inset-0 flex items-center justify-center ${
+                isVideo
+                  ? ""
+                  : "cursor-grab touch-pan-y active:cursor-grabbing"
+              }`}
             >
-              <div className="relative h-full w-full">
-                <Image
-                  src={publicMediaUrl(item.storage_path)}
-                  alt={`Foto ${index + 1} del álbum`}
-                  fill
-                  priority
-                  sizes="100vw"
-                  className="pointer-events-none select-none object-contain"
-                  draggable={false}
-                />
+              <div className="relative flex h-full w-full items-center justify-center">
+                {isVideo ? (
+                  <video
+                    key={item.id}
+                    src={publicMediaUrl(item.storage_path)}
+                    controls
+                    autoPlay
+                    playsInline
+                    preload="metadata"
+                    className="max-h-full max-w-full select-none object-contain"
+                  />
+                ) : (
+                  <Image
+                    src={publicMediaUrl(item.storage_path)}
+                    alt={`Foto ${index + 1} del álbum`}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="pointer-events-none select-none object-contain"
+                    draggable={false}
+                  />
+                )}
               </div>
             </motion.div>
           </AnimatePresence>
@@ -198,15 +217,17 @@ export function PhotoLightbox({
 
         {/* Prefetch vecinos (ocultos) */}
         <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
-          {neighborIndexes.map((i) => (
-            <Image
-              key={media[i].id}
-              src={publicMediaUrl(media[i].storage_path)}
-              alt=""
-              width={32}
-              height={32}
-            />
-          ))}
+          {neighborIndexes
+            .filter((i) => !isVideoType(media[i].mime_type))
+            .map((i) => (
+              <Image
+                key={media[i].id}
+                src={publicMediaUrl(media[i].storage_path)}
+                alt=""
+                width={32}
+                height={32}
+              />
+            ))}
         </div>
       </div>
 
@@ -229,7 +250,7 @@ export function PhotoLightbox({
             onClick={() => onRequestDelete(item)}
             className="inline-flex h-12 min-h-[44px] w-full items-center justify-center rounded-full bg-lust px-5 text-base font-semibold text-blanco transition-transform duration-150 hover:opacity-90 active:scale-95 sm:h-11 sm:w-auto sm:text-sm"
           >
-            Borrar foto
+            {isVideo ? "Borrar vídeo" : "Borrar foto"}
           </button>
         </div>
         {justSetCover ? (
