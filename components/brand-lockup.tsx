@@ -33,9 +33,9 @@ export function BrandLockup({
 
   const content = (
     <span className="inline-flex flex-col items-start gap-1.5">
-      <span className={s.wordmark} aria-label="Album NFC">
-        <span className="text-piedra">Album</span>
-        <span className="text-tierra"> NFC</span>
+      <span className={s.wordmark} aria-label="Los viajes de Arturo">
+        <span className="text-piedra">Los viajes de</span>
+        <span className="text-tierra"> Arturo</span>
       </span>
       {showTagline ? (
         <span className={`font-medium text-muted-foreground ${s.tagline}`}>
@@ -53,7 +53,7 @@ export function BrandLockup({
     <Link
       href={href}
       className={`inline-flex transition-transform duration-150 active:scale-[0.98] ${className}`}
-      aria-label="Album NFC — inicio"
+      aria-label="Los viajes de Arturo — inicio"
     >
       {content}
     </Link>
