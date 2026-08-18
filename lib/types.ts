@@ -6,6 +6,7 @@ export type Album = {
   country_name: string;
   slug: string;
   cover_path: string | null;
+  featured_video_url: string | null;
   created_at: string;
 };
 
