@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { MEDIA_BUCKET } from "@/lib/storage";
+import { MEDIA_BUCKET, isVideoType } from "@/lib/storage";
 
 export async function registerMedia(
   albumId: string,
@@ -28,7 +28,9 @@ export async function registerMedia(
     .eq("id", albumId)
     .single();
 
-  if (album && !album.cover_path) {
+  // La portada automática solo la ponemos con fotos: un vídeo como portada
+  // queda peor en la rejilla. El usuario siempre puede elegirlo a mano.
+  if (album && !album.cover_path && !isVideoType(mimeType)) {
     await supabase
       .from("albums")
       .update({ cover_path: storagePath })
