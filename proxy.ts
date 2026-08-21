@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE, safeEqual, sessionToken } from "@/lib/auth";
+import { SESSION_COOKIE, roleFromCookie } from "@/lib/auth";
 
 export const config = {
   // Todo excepto los estáticos de Next y la propia pantalla de contraseña.
@@ -8,15 +8,14 @@ export const config = {
 };
 
 export async function proxy(request: NextRequest) {
-  const expected = await sessionToken();
+  // Aquí solo comprobamos que la cookie sea válida (propietario o visitante).
+  // Lo que puede hacer cada rol se decide en el servidor, en cada acción.
+  const role = await roleFromCookie(
+    request.cookies.get(SESSION_COOKIE)?.value,
+  );
 
-  // Sin contraseña configurada cerramos el sitio a propósito (fail closed):
-  // más vale quedarse fuera uno mismo que dejarlo abierto sin darse cuenta.
-  if (expected) {
-    const cookie = request.cookies.get(SESSION_COOKIE)?.value;
-    if (cookie && safeEqual(cookie, expected)) {
-      return NextResponse.next();
-    }
+  if (role) {
+    return NextResponse.next();
   }
 
   const url = new URL("/login", request.url);
