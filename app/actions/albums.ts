@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { DEFAULT_ALBUM_EMOJI, isValidAlbumEmoji } from "@/lib/album-emojis";
 import { countryNameFromCode } from "@/lib/countries";
 import { randomSuffix, slugify } from "@/lib/slug";
-import { createClient } from "@/lib/supabase/server";
+import { requireOwner } from "@/lib/session";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { MEDIA_BUCKET } from "@/lib/storage";
 
 export type CreateAlbumState = {
@@ -16,6 +17,12 @@ export async function createAlbum(
   _prevState: CreateAlbumState,
   formData: FormData,
 ): Promise<CreateAlbumState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { error: "No tienes permiso para crear álbumes." };
+  }
+
   const name = String(formData.get("name") ?? "").trim();
   const countryCode = String(formData.get("country_code") ?? "").trim();
   const emojiInput = String(formData.get("emoji") ?? "").trim();
@@ -35,7 +42,7 @@ export async function createAlbum(
   const countryName = countryNameFromCode(countryCode);
   const baseSlug = slugify(name) || slugify(countryName) || "album";
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   let slug = baseSlug;
   let attempt = 0;
@@ -73,7 +80,9 @@ export async function createAlbum(
 }
 
 export async function deleteAlbum(albumId: string, slug: string) {
-  const supabase = await createClient();
+  await requireOwner();
+
+  const supabase = createAdminClient();
 
   const { data: mediaRows } = await supabase
     .from("media")
