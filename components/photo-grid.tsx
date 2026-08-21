@@ -16,9 +16,16 @@ type PhotoGridProps = {
   albumId: string;
   slug: string;
   coverPath: string | null;
+  canEdit: boolean;
 };
 
-export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
+export function PhotoGrid({
+  media,
+  albumId,
+  slug,
+  coverPath,
+  canEdit,
+}: PhotoGridProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [direction, setDirection] = useState(0);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
@@ -68,7 +75,11 @@ export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
     return (
       <EmptyState
         title="Todavía no hay nada en este álbum"
-        description="Toca el botón para guardar la primera foto o vídeo, con la cámara o la galería del móvil."
+        description={
+          canEdit
+            ? "Toca el botón para guardar la primera foto o vídeo, con la cámara o la galería del móvil."
+            : "Cuando Arturo suba algo, aparecerá aquí."
+        }
       />
     );
   }
@@ -131,6 +142,7 @@ export function PhotoGrid({ media, albumId, slug, coverPath }: PhotoGridProps) {
             justSetCover={justSetCover}
             onIndexChange={handleIndexChange}
             onClose={() => setSelectedIndex(null)}
+            canEdit={canEdit}
             onSetCover={handleSetCover}
             onRequestDelete={(item) => setConfirmingId(item.id)}
           />
