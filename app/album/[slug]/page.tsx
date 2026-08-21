@@ -7,6 +7,7 @@ import { FeaturedVideo } from "@/components/featured-video";
 import { PhotoGrid } from "@/components/photo-grid";
 import { UploadButton } from "@/components/upload-button";
 import { getAlbumBySlug } from "@/lib/albums";
+import { isOwner } from "@/lib/session";
 
 export default async function AlbumPage(
   props: PageProps<"/album/[slug]">,
@@ -19,6 +20,7 @@ export default async function AlbumPage(
   }
 
   const { album, media } = result;
+  const canEdit = await isOwner();
 
   return (
     <>
@@ -49,7 +51,9 @@ export default async function AlbumPage(
                 {album.name}
               </h1>
             </div>
-            <DeleteAlbumButton albumId={album.id} slug={album.slug} />
+            {canEdit ? (
+              <DeleteAlbumButton albumId={album.id} slug={album.slug} />
+            ) : null}
           </div>
         </div>
 
@@ -58,6 +62,7 @@ export default async function AlbumPage(
           slug={album.slug}
           albumName={album.name}
           videoUrl={album.featured_video_url ?? null}
+          canEdit={canEdit}
         />
 
         <PhotoGrid
@@ -65,8 +70,11 @@ export default async function AlbumPage(
           albumId={album.id}
           slug={album.slug}
           coverPath={album.cover_path}
+          canEdit={canEdit}
         />
-        <UploadButton albumId={album.id} slug={album.slug} />
+        {canEdit ? (
+          <UploadButton albumId={album.id} slug={album.slug} />
+        ) : null}
       </main>
     </>
   );
