@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { AlbumWithCount, Media } from "@/lib/types";
 
 export async function getAlbums(): Promise<AlbumWithCount[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("albums")
@@ -20,17 +20,16 @@ export async function getAlbums(): Promise<AlbumWithCount[]> {
         ...album,
         media_count: media?.[0]?.count ?? 0,
       };
-    });
+    }) as AlbumWithCount[];
   } catch {
-    // Supabase sin configurar (falta NEXT_PUBLIC_SUPABASE_ANON_KEY): degradar
-    // a lista vacía en vez de romper la home.
+    // Supabase sin configurar: degradar a lista vacía en vez de romper la home.
     return [];
   }
 }
 
 export async function getAlbumBySlug(slug: string) {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     const { data: album, error } = await supabase
       .from("albums")
