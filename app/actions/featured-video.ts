@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { requireOwner } from "@/lib/session";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { youtubeIdFromUrl, youtubeWatchUrl } from "@/lib/youtube";
 
 export type FeaturedVideoState = {
@@ -13,6 +14,12 @@ export async function setFeaturedVideo(
   _prevState: FeaturedVideoState,
   formData: FormData,
 ): Promise<FeaturedVideoState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { error: "No tienes permiso para cambiar el vídeo.", savedAt: null };
+  }
+
   const albumId = String(formData.get("album_id") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim();
   const raw = String(formData.get("url") ?? "").trim();
@@ -21,7 +28,7 @@ export async function setFeaturedVideo(
     return { error: "No se pudo identificar el álbum.", savedAt: null };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Campo vacío = quitar el vídeo destacado.
   if (!raw) {
