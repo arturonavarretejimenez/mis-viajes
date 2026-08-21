@@ -10,7 +10,10 @@ export async function getAlbums(): Promise<AlbumWithCount[]> {
       .select("*, media(count)")
       .order("created_at", { ascending: false });
 
-    if (error || !data) return [];
+    if (error || !data) {
+      console.error("[albums] getAlbums falló:", JSON.stringify(error));
+      return [];
+    }
 
     return data.map((row) => {
       const { media, ...album } = row as typeof row & {
@@ -21,8 +24,13 @@ export async function getAlbums(): Promise<AlbumWithCount[]> {
         media_count: media?.[0]?.count ?? 0,
       };
     }) as AlbumWithCount[];
-  } catch {
+  } catch (e) {
     // Supabase sin configurar: degradar a lista vacía en vez de romper la home.
+    console.error("[albums] getAlbums excepción:", (e as Error)?.message, {
+      tieneUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      tieneClaveServicio: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      longitudClave: (process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").length,
+    });
     return [];
   }
 }
