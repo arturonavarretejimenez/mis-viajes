@@ -35,6 +35,7 @@ type PhotoLightboxProps = {
   coverPath: string | null;
   isSettingCover: boolean;
   justSetCover: boolean;
+  canEdit: boolean;
   onIndexChange: (nextIndex: number, direction: number) => void;
   onClose: () => void;
   onSetCover: (item: Media) => void;
@@ -48,6 +49,7 @@ export function PhotoLightbox({
   coverPath,
   isSettingCover,
   justSetCover,
+  canEdit,
   onIndexChange,
   onClose,
   onSetCover,
@@ -231,6 +233,7 @@ export function PhotoLightbox({
         </div>
       </div>
 
+      {canEdit ? (
       <div className="relative z-20 shrink-0 border-t border-blanco/10 bg-piedra/80 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
           <button
@@ -263,6 +266,7 @@ export function PhotoLightbox({
           </motion.p>
         ) : null}
       </div>
+      ) : null}
     </motion.div>
   );
 }
