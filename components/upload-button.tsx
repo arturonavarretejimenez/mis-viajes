@@ -1,14 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { registerMedia } from "@/app/actions/media";
+import { createUploadTarget, registerMedia } from "@/app/actions/media";
 import { createClient } from "@/lib/supabase/client";
 import {
   ACCEPTED_MEDIA_TYPES,
   MAX_IMAGE_BYTES,
   MAX_VIDEO_BYTES,
   MEDIA_BUCKET,
-  extensionFromMimeType,
   formatMegabytes,
   isVideoType,
   maxBytesForType,
@@ -94,21 +93,20 @@ export function UploadButton({ albumId, slug }: UploadButtonProps) {
         prev ? { ...prev, subiendoVideo: isVideoType(file.type) } : prev,
       );
 
-      const ext = extensionFromMimeType(file.type);
-      const path = `${albumId}/${crypto.randomUUID()}.${ext}`;
+      try {
+        // El servidor nos da una URL firmada de un solo uso: el bucket está
+        // cerrado y el navegador no puede escribir en él por su cuenta.
+        const { path, token } = await createUploadTarget(albumId, file.type);
 
-      const { error: uploadError } = await supabase.storage
-        .from(MEDIA_BUCKET)
-        .upload(path, file, { contentType: file.type });
+        const { error: uploadError } = await supabase.storage
+          .from(MEDIA_BUCKET)
+          .uploadToSignedUrl(path, token, file, { contentType: file.type });
 
-      if (uploadError) {
+        if (uploadError) throw uploadError;
+
+        await registerMedia(albumId, slug, path, file.type);
+      } catch {
         fallos += 1;
-      } else {
-        try {
-          await registerMedia(albumId, slug, path, file.type);
-        } catch {
-          fallos += 1;
-        }
       }
 
       setProgress((prev) => (prev ? { ...prev, done: prev.done + 1 } : prev));
