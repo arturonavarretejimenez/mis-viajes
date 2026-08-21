@@ -1,8 +1,41 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { MEDIA_BUCKET, isVideoType } from "@/lib/storage";
+import { requireOwner } from "@/lib/session";
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  ACCEPTED_MEDIA_TYPES,
+  MEDIA_BUCKET,
+  extensionFromMimeType,
+  isVideoType,
+} from "@/lib/storage";
+
+/**
+ * El navegador no puede escribir en el bucket (está cerrado), así que le damos
+ * una URL de subida firmada de un solo uso. El archivo va directo del móvil a
+ * Supabase sin pasar por el servidor, que es lo que permite vídeos de 50 MB.
+ */
+export async function createUploadTarget(albumId: string, mimeType: string) {
+  await requireOwner();
+
+  if (!ACCEPTED_MEDIA_TYPES.includes(mimeType)) {
+    throw new Error("Tipo de archivo no permitido.");
+  }
+
+  const ext = extensionFromMimeType(mimeType);
+  const path = `${albumId}/${crypto.randomUUID()}.${ext}`;
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .createSignedUploadUrl(path);
+
+  if (error || !data) {
+    throw new Error("No se pudo preparar la subida.");
+  }
+
+  return { path: data.path, token: data.token };
+}
 
 export async function registerMedia(
   albumId: string,
@@ -10,7 +43,9 @@ export async function registerMedia(
   storagePath: string,
   mimeType: string,
 ) {
-  const supabase = await createClient();
+  await requireOwner();
+
+  const supabase = createAdminClient();
 
   const { error } = await supabase.from("media").insert({
     album_id: albumId,
@@ -46,7 +81,9 @@ export async function setAlbumCover(
   storagePath: string,
   slug: string,
 ) {
-  const supabase = await createClient();
+  await requireOwner();
+
+  const supabase = createAdminClient();
 
   const { error } = await supabase
     .from("albums")
@@ -67,7 +104,9 @@ export async function deleteMedia(
   albumId: string,
   slug: string,
 ) {
-  const supabase = await createClient();
+  await requireOwner();
+
+  const supabase = createAdminClient();
 
   await supabase.storage.from(MEDIA_BUCKET).remove([storagePath]);
   await supabase.from("media").delete().eq("id", mediaId);
