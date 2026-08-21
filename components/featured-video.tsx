@@ -15,6 +15,7 @@ type FeaturedVideoProps = {
   slug: string;
   albumName: string;
   videoUrl: string | null;
+  canEdit: boolean;
 };
 
 export function FeaturedVideo({
@@ -22,6 +23,7 @@ export function FeaturedVideo({
   slug,
   albumName,
   videoUrl,
+  canEdit,
 }: FeaturedVideoProps) {
   const [editing, setEditing] = useState(false);
   const [state, formAction, pending] = useActionState(
@@ -40,13 +42,15 @@ export function FeaturedVideo({
 
   const videoId = videoUrl ? youtubeIdFromUrl(videoUrl) : null;
 
+  if (!canEdit && !videoId) return null;
+
   return (
     <section className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-bosque">
           Vídeo destacado
         </h2>
-        {videoId && !editing ? (
+        {canEdit && videoId && !editing ? (
           <button
             type="button"
             onClick={() => setEditing(true)}
@@ -71,7 +75,7 @@ export function FeaturedVideo({
             />
           </div>
         </div>
-      ) : !editing ? (
+      ) : canEdit && !editing ? (
         <button
           type="button"
           onClick={() => setEditing(true)}
@@ -87,7 +91,7 @@ export function FeaturedVideo({
       ) : null}
 
       <AnimatePresence initial={false}>
-        {editing ? (
+        {canEdit && editing ? (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
