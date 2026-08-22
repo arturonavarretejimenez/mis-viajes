@@ -14,8 +14,26 @@ export async function GET() {
     return NextResponse.json({ error: "no autorizado" }, { status: 403 });
   }
 
+  const nombres = [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SITE_PASSWORD",
+    "VISITOR_PASSWORD",
+  ];
+
+  const variables: Record<string, unknown> = {};
+  for (const n of nombres) {
+    const v = process.env[n];
+    variables[n] = {
+      definida: v !== undefined,
+      vacia: v === "",
+      longitud: v?.length ?? 0,
+    };
+  }
+
   const claves = {
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? null,
+    variables,
     servicio: describeKey(process.env.SUPABASE_SERVICE_ROLE_KEY),
     publica: describeKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   };
