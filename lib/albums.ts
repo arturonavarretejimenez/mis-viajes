@@ -1,60 +1,70 @@
-import { createAdminClient } from "@/lib/supabase/admin";
-import type { AlbumWithCount, Media } from "@/lib/types";
+import { readClients } from "@/lib/supabase/admin";
+import type { Album, AlbumWithCount, Media } from "@/lib/types";
+
+type Respuesta<T> = { data: T | null; error: unknown };
+
+/**
+ * Lanza la consulta con la clave de servicio y, si falla, la reintenta con la
+ * clave pública. Si fallan todas, lanza el error de verdad en vez de devolver
+ * una lista vacía: una web en blanco por un fallo silencioso parece que se han
+ * borrado los datos, y eso no puede volver a pasar.
+ */
+async function leer<T>(
+  consulta: (cliente: ReturnType<typeof readClients>[number]["cliente"]) => PromiseLike<Respuesta<T>>,
+): Promise<T | null> {
+  const candidatos = readClients();
+  const fallos: string[] = [];
+
+  for (const { nombre, cliente } of candidatos) {
+    try {
+      const { data, error } = await consulta(cliente);
+      if (!error) return data;
+      const mensaje =
+        (error as { message?: string })?.message ?? JSON.stringify(error);
+      fallos.push(`${nombre}: ${mensaje}`);
+    } catch (e) {
+      fallos.push(`${nombre}: ${(e as Error)?.message ?? String(e)}`);
+    }
+  }
+
+  throw new Error(`Supabase no devolvió datos → ${fallos.join(" | ")}`);
+}
 
 export async function getAlbums(): Promise<AlbumWithCount[]> {
-  try {
-    const supabase = createAdminClient();
+  const data = await leer((c) =>
+    c.from("albums").select("*, media(count)").order("created_at", { ascending: false }),
+  );
 
-    const { data, error } = await supabase
-      .from("albums")
-      .select("*, media(count)")
-      .order("created_at", { ascending: false });
+  if (!data) return [];
 
-    if (error || !data) {
-      console.error("[albums] getAlbums falló:", JSON.stringify(error));
-      return [];
-    }
-
-    return data.map((row) => {
-      const { media, ...album } = row as typeof row & {
-        media: { count: number }[];
-      };
-      return {
-        ...album,
-        media_count: media?.[0]?.count ?? 0,
-      };
-    }) as AlbumWithCount[];
-  } catch (e) {
-    // Supabase sin configurar: degradar a lista vacía en vez de romper la home.
-    console.error("[albums] getAlbums excepción:", (e as Error)?.message, {
-      tieneUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-      tieneClaveServicio: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-      longitudClave: (process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").length,
-    });
-    return [];
-  }
+  return (data as unknown[]).map((row) => {
+    const { media, ...album } = row as Record<string, unknown> & {
+      media?: { count: number }[];
+    };
+    return {
+      ...album,
+      media_count: media?.[0]?.count ?? 0,
+    };
+  }) as AlbumWithCount[];
 }
 
 export async function getAlbumBySlug(slug: string) {
-  try {
-    const supabase = createAdminClient();
+  const album = await leer((c) =>
+    c.from("albums").select("*").eq("slug", slug).maybeSingle(),
+  );
 
-    const { data: album, error } = await supabase
-      .from("albums")
-      .select("*")
-      .eq("slug", slug)
-      .maybeSingle();
+  if (!album) return null;
 
-    if (error || !album) return null;
-
-    const { data: media } = await supabase
+  const media = await leer((c) =>
+    c
       .from("media")
       .select("*")
-      .eq("album_id", album.id)
-      .order("created_at", { ascending: false });
+      .eq("album_id", (album as { id: string }).id)
+      .order("created_at", { ascending: false }),
+  );
 
-    return { album, media: (media ?? []) as Media[] };
-  } catch {
-    return null;
-  }
+  return {
+    album: album as Album,
+    media: (media ?? []) as Media[],
+  };
 }
