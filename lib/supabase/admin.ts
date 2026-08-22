@@ -24,13 +24,23 @@ function build(key: string) {
   });
 }
 
-/** Cliente con la clave de servicio: se salta las políticas RLS. */
+/**
+ * Cliente para ESCRIBIR. Con la clave de servicio se salta las políticas RLS.
+ *
+ * Si esa clave no está puesta, cae a la clave pública: no concede nada extra,
+ * porque entonces manda la RLS. Mientras la base esté abierta funciona igual;
+ * en cuanto se cierre, fallará con un error claro en vez de silencio.
+ */
 export function createAdminClient() {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceKey) {
-    throw new Error("Falta SUPABASE_SERVICE_ROLE_KEY.");
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!key) {
+    throw new Error(
+      "No hay ninguna clave de Supabase configurada (ni de servicio ni pública).",
+    );
   }
-  return build(serviceKey);
+  return build(key);
 }
 
 export type ClienteCandidato = {
